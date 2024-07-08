@@ -1,8 +1,14 @@
-const Users = require("../db/paytmcloneusers")
+const {Users, Accounts} = require("../db/paytmcloneusers")
 const {argon2} = require("../db/paytmcloneusers")
 const userverify = require('../middlewares/userverify')
+const authVerification = require("../middlewares/authVerification")
 const {Router} = require("express")
+const jwt = require("jsonwebtoken")
+const {JWT_SECRET} = require("../config")
 const zod = require('zod')
+const { default: mongoose } = require("mongoose")
+
+
 const router = Router();
 
 
@@ -24,28 +30,63 @@ router.post("/signup",zodvalidation, async (req,res)=>{
     const FirstName = req.body.FirstName;
     const LastName = req.body.LastName;
     const Email = req.body.Email;
+    const InitialBalance =Number(req.body.InitialBalance);
 
 
     
     
     //user existance check
-    const userexists = await Users.findOne({Email:Email});
+    let userexists
+    try{
+       userexists = await Users.findOne({Email:Email});
+    }
+    catch(e){
+      res.status(400).send({msg:'internal error'})
+    }
+    
     if(userexists)
-    return res.status(400).send('user with this Email already exists')
+    return res.status(400).send({msg:'user with this email already exists'})
+    
+    let session 
+    try{      
 
-    const newUser = new Users({FirstName: FirstName,LastName: LastName,Email:Email})
-    newUser.Password_hash = await newUser.createHash(req.body.Password);
+      session = await mongoose.startSession()
+      session.startTransaction()
+      
+      const newUser = new Users({FirstName: FirstName,LastName: LastName,Email:Email})
+      newUser.Password_hash = await argon2.hash(req.body.Password);
+      const newAccount =new Accounts({UserId:newUser._id,Balance:InitialBalance})
+      newUser.Account = newAccount._id
+      
+
+        
+        await newAccount.save({session})
+        await newUser.save({session})
+        await session.commitTransaction()
+
+        res.status(500).send({msg: 'signup success'});
+    }
+    catch(e){
+        await session?.abortTransaction();
+        console.log(e)
+        res.status(500).send({msg:'try again'})
+    }
+    finally{
+      await session.endSession()
+    }
     
-    
-    await newUser.save();
-    res.status(200).send({msg: 'signup success'});
+
 })
 
 
 router.post("/signin",userverify,async (req,res) => {
-  res.json("ohk")
+  const {Email,FirstName,LastName}=res.data.user
+  const token = jwt.sign({Email},JWT_SECRET,{ expiresIn: '24h' })
+
+  
+  res.status(200).send({token})
 })
-router.post("/update/password",userverify,async(req,res)=>{
+router.post("/update/password",authVerification,userverify,async(req,res)=>{
        
        //zod validate
        const Schema = zod.object({Password:zod.string().min(8)})
