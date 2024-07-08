@@ -8,13 +8,12 @@ const router = Router();
 router.get('/bulk',authverification,async(req,res)=>{
      try{
           let list = await Users.find({$or : 
-               [{FirstName:new RegExp(req.query.filter,'i')},{LastName: new RegExp(req.query.filter,'i')}]});
+               [{FirstName:new RegExp(req.query.filter,'i')},{LastName: new RegExp(req.query.filter,'i')}]}).select("-Password_hash");
           res.status(200).json(list);
      }
      catch(e){
           res.status(500).send({msg:'try again'})
-          console.log(e)
-     }
+          }
      
 
 })

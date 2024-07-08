@@ -8,27 +8,32 @@ const router = Router();
 router.get('/balance',authverification ,async (req,res) =>{
     let balance;
     try{
-       Users.findOne({Email:res.data})
+     const user = await  Users.findOne({Email:res.data})
        .populate('Account')
-       .eval()
-       .then((user)=>balance=user.Account.Balance)
+       .exec()
+     balance=user.Account.Balance
     }
     catch(e){
-        res.status(501).send({msg:'internal error'})
+       
+       return res.status(501).send({msg:'internal error'})
     }
+    console.log(balance)
 
-    res.send(200).send({balance : balance});
+    res.status(200).send({balance : balance.toString()});
 
 }
 )
 
-router.post('/transfer',authverification,async(res,req)=>{
-    const {to,amount} = req.body;
-    const {from} = res.data.Account;
+router.post('/transfer',authverification,async(req,res)=>{
+    const to = req.body.to;
+    const amount = Number(req.body.amount)
+    
     let session
     try{
+        const {Account} = await Users.findOne({Email:res.data})
+        const from = Account;
         session =await mongoose.startSession();
-        session.startTransaction();
+        session.startTransaction();    
     
         const accountfrom = await Accounts.findById(from).session(session);
         if(!accountfrom||accountfrom.Balance<amount){
@@ -59,6 +64,7 @@ router.post('/transfer',authverification,async(res,req)=>{
         res.status(400).send({msg:"transaction failed"})
     }
     finally{
+        
         await session.endSession();
     }
 
