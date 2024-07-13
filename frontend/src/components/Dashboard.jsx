@@ -1,22 +1,31 @@
 import Body from "./Body";
-
+import userIcon from "../assets/user-3296.svg"
+import SendMoney from "./SendMoney";
 
 
 const Dashboard = ()=> {
 
 
-    return <div>
-        <div>
-            <h1>Payments App</h1>
-            <div>Hello User</div>
+    return<div>
+     <div className="bg-gray-600 min-h-screen flex justify-center items-center min-w-[340px] z-10">
+        <div className="bg-white w-11/12 flex flex-col gap-6 p-6">
+        <div className="flex justify-between border-y-2 py-3">
+            <h1 className="text-2xl font-bold">Payments App</h1>
+            <div className="flex gap-4">
+            <div className="text-lg font-semibold self-center">Hello, User</div>
+            <img alt="user" src={userIcon} className="size-10"></img>
+            </div>
         </div>
-        <div>
-            <div>
+        <div className="flex flex-col gap-5">
+            <div className="text-xl font-bold">
                 Your Balance
             </div>
             <Body/>
         </div>
+        </div>
         
+    </div>
+    <SendMoney/>
     </div>
 }
 

@@ -14,7 +14,21 @@ const router = Router();
 
 
 function zodvalidation (req,res,next) {
-  const Schema = zod.object({FirstName:zod.string(),LastName:zod.string(),Password:zod.string().min(8),Email:zod.string().email()})
+  const Schema = zod
+  .object({
+    FirstName: zod.string({
+      required_error: "Firstname is required",
+      invalid_type_error: "firstname must be a string",
+    }),
+    LastName: zod.string({
+      required_error: "Lastname is required",
+      invalid_type_error: "lastname must be a string",
+    }),
+    Email: zod
+      .string({ required_error: "Email is required" })
+      .email({ message: "Invalid email address" }),
+    Password: zod.string({required_error:"Password is required"}).min(8)
+  })
    const FirstName = req.body.FirstName;
    const LastName = req.body.LastName;
    const Email = req.body.Email;
@@ -64,7 +78,7 @@ router.post("/signup",zodvalidation, async (req,res)=>{
         await newUser.save({session})
         await session.commitTransaction()
 
-        res.status(500).send({msg: 'signup success'});
+        res.status(200).send({msg: 'signup success'});
     }
     catch(e){
         await session?.abortTransaction();
