@@ -1,10 +1,13 @@
 import { useState } from "react"
 import { useNavigate } from "react-router-dom";
+import {useDispatch} from "react-redux"
+import { toogleLoginState } from "../store/loginSlice";
 
 const Signin = () =>{
      const [formData,setFormData]=useState({Email:'',Password:''})
      const [error,setError] = useState(null);
      const navigate = useNavigate()
+     const dispatch = useDispatch();
 
      
     const handleChange =(e)=>{
@@ -23,13 +26,19 @@ const Signin = () =>{
             }
         )
         const json = await respose.json();
-        if(respose.ok)
-        setError("Signin success")
+        if(respose.ok){
+            setError("Signin success")
+            dispatch(toogleLoginState())
+            navigate("/dashboard")
+            
+        }
+        
         else
         setError("Tryagain")
         
 
     }
+    
     return (<div className="bg-gray-600 p-5 bg-fixed min-h-screen flex justify-center items-center" >
         <form onSubmit={handleSubmit} className=" rounded-lg w-[360px] bg-white p-3 m-2 flex flex-col gap-y-6 h-fit">
         <div className="flex flex-col items-center p-2">
