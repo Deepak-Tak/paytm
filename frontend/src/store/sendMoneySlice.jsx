@@ -7,8 +7,8 @@ const sendMoneySlice = createSlice({
         sendMoney : 0
     },
     reducers : {
-        tooglesendMoney : state => {
-              state.sendMoney=!state.sendMoney
+        tooglesendMoney :(state,action)  => {
+              state.sendMoney=action.payload
         }
     }
 

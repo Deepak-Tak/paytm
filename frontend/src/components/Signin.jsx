@@ -16,25 +16,34 @@ const Signin = () =>{
     }
     const handleSubmit =async (e)=>{
         e.preventDefault()
-        const respose = await fetch("http://localhost:3000/authentication/signin",
-            {
-                method : "post",
-                headers: {
-                    "Content-Type": "application/json",
-                  },
-                body:JSON.stringify(formData)
+       try {
+            const respose = await fetch("http://localhost:3000/authentication/signin",
+                {
+                    method : "post",
+                    headers: {
+                        "Content-Type": "application/json",
+                      },
+                    body:JSON.stringify(formData)
+                }
+            )
+            if(respose.ok){
+                const json = await respose.json();
+                console.log(json)
+                localStorage.setItem("token",json.token)
+
+                setError("Signin success")
+                dispatch(toogleLoginState())
+                navigate("/dashboard")
+                
             }
-        )
-        const json = await respose.json();
-        if(respose.ok){
-            setError("Signin success")
-            dispatch(toogleLoginState())
-            navigate("/dashboard")
             
+            else
+            setError("Tryagain") 
         }
-        
-        else
-        setError("Tryagain")
+        catch(e){
+            setError("Try Again")
+        }
+       
         
 
     }

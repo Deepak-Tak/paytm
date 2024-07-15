@@ -4,7 +4,7 @@ const { JWT_SECRET } = require("../config")
 const authverification = (req,res,next) => {
            let token = req.headers.authorization
            if(!token || !token.startsWith('Bearer '))
-           res.status(403).send({msg: 'invalid token'})
+           return res.status(403).send({msg: 'invalid token'})
            token=token.slice(7)
 
           let decoded 
@@ -15,7 +15,7 @@ const authverification = (req,res,next) => {
       catch(e){
           return  res.status(403).send({msg : "invalid token or session expired"})
       }
-        res.data = decoded.Email;
+        res.data = {Email:decoded.Email,FirstName:decoded.FirstName};
       next();
       
       

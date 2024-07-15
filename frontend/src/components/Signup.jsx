@@ -9,21 +9,23 @@ const Signup = () =>{
 
     const handleSubmit = async(e) =>{
         e.preventDefault() 
-        const respose = await fetch("http://localhost:3000/authentication/signup",{
-            method: "post",
-            body: JSON.stringify(formData) ,
-            headers: {
-                "Content-Type": "application/json",
-              }
-        })
-        const data = await respose.json()
-        if(respose.ok)
-        setError("signup success")
-        else{
-            setError('Tryagain')
-            console.log("HELLO")
+        try{
+            const respose = await fetch("http://localhost:3000/authentication/signup",{
+                method: "post",
+                body: JSON.stringify(formData) ,
+                headers: {
+                    "Content-Type": "application/json",
+                  }
+            })
+            if(respose.ok)
+            return setError("signup success")
+            else
+            setError("Try Again")
         }
-
+        catch(e){
+            setError("Try Again")
+        }
+        
     }
     const handleChange = (e)=>{
              const {name , value} = e.target

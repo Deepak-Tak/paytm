@@ -94,8 +94,8 @@ router.post("/signup",zodvalidation, async (req,res)=>{
 
 
 router.post("/signin",userverify,async (req,res) => {
-  const {Email,FirstName,LastName}=res.data.user
-  const token = jwt.sign({Email},JWT_SECRET,{ expiresIn: '24h' })
+  const {Email,FirstName}=res.data.user
+  const token = jwt.sign({Email,FirstName},JWT_SECRET,{ expiresIn: '24h' })
 
   
   res.status(200).send({token})
